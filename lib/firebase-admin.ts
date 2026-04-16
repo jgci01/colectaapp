@@ -4,7 +4,14 @@ import { getAuth } from 'firebase-admin/auth'
 
 const projectId = process.env.FIREBASE_PROJECT_ID
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
-const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
+
+// Robust parsing for the private key
+const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY
+const privateKey = rawPrivateKey
+  ? rawPrivateKey
+      .replace(/^['"]|['"]$/g, '') // Remove surrounding quotes
+      .replace(/\\n/g, '\n')       // Handle escaped newlines
+  : undefined
 
 const canInitialize = projectId && clientEmail && privateKey && privateKey.includes('PRIVATE KEY')
 
