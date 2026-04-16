@@ -35,7 +35,7 @@ export default function ModalPago({ isOpen, onClose }: { isOpen: boolean; onClos
       })
       const { initPoint } = await res.json()
       window.location.href = initPoint
-    } catch (err) {
+    } catch (_) {
       alert('Error al iniciar el pago')
     } finally {
       setLoading(false)

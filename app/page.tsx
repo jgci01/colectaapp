@@ -26,8 +26,9 @@ export default function LoginPage() {
         await registrar(email, password, nombre)
       }
       router.push('/dashboard')
-    } catch (err: any) {
-      setError(err.message || 'Error al procesar la solicitud')
+    } catch (err: unknown) {
+      const error = err as Error
+      setError(error.message || 'Error al procesar la solicitud')
     } finally {
       setLoading(false)
     }

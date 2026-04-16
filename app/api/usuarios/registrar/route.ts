@@ -13,9 +13,10 @@ export async function POST(req: NextRequest) {
       creadoEn: new Date().toISOString(),
     })
     return NextResponse.json({ ok: true, uid: userRecord.uid })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[registrar]', err)
-    const msg = err.code === 'auth/email-already-exists' ? 'Email ya registrado' : 'Error al registrar'
+    const error = err as { code?: string }
+    const msg = error.code === 'auth/email-already-exists' ? 'Email ya registrado' : 'Error al registrar'
     return NextResponse.json({ error: msg }, { status: 400 })
   }
 }

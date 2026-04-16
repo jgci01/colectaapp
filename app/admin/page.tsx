@@ -9,7 +9,7 @@ import { db } from '@/lib/firebase'
 import { EstadoColecta, Retiro } from '@/lib/types'
 
 export default function AdminPage() {
-  const { perfil, esAdmin, loading: authLoading } = useAuth()
+  const { esAdmin, loading: authLoading } = useAuth()
   const router = useRouter()
   const [estado, setEstado] = useState<EstadoColecta | null>(null)
   const [monto, setMonto] = useState<number>(0)
@@ -67,7 +67,7 @@ export default function AdminPage() {
         setMotivo('')
         setTimeout(() => setSuccess(false), 3000)
       }
-    } catch (err) {
+    } catch (_) {
       alert('Error al registrar retiro')
     } finally {
       setLoading(false)
