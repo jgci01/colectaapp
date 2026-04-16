@@ -112,6 +112,8 @@ function DashboardContent() {
       <ModalPago isOpen={showModal} onClose={() => setShowModal(false)} />
     </>
   )
+}
+
 export default function Dashboard() {
   return (
     <Suspense fallback={
