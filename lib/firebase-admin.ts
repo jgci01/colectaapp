@@ -5,29 +5,41 @@ import { getAuth } from 'firebase-admin/auth'
 const projectId = process.env.FIREBASE_PROJECT_ID
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
 
-// Robust parsing for the private key
-const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY
-const privateKey = rawPrivateKey
-  ? rawPrivateKey
-      .replace(/^['"]|['"]$/g, '') // Remove surrounding quotes
-      .replace(/\\n/g, '\n')       // Handle escaped newlines
-  : undefined
+/**
+ * Normaliza la clave privada para manejar formatos comunes de variables de entorno.
+ */
+function formatPrivateKey(key: string | undefined) {
+  if (!key) return undefined
+  return key
+    .replace(/^['"]|['"]$/g, '') // Elimina comillas literales al inicio/final
+    .replace(/\\n/g, '\n')       // Convierte \n literales en saltos de línea
+    .replace(/\r/g, '')          // Elimina retornos de carro
+    .trim()
+}
 
-const canInitialize = projectId && clientEmail && privateKey && privateKey.includes('PRIVATE KEY')
+const privateKey = formatPrivateKey(process.env.FIREBASE_PRIVATE_KEY)
 
 if (!getApps().length) {
-  if (canInitialize) {
-    initializeApp({ 
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey,
+  try {
+    // Intentamos inicializar con credenciales reales si están completas
+    if (projectId && clientEmail && privateKey && privateKey.includes('PRIVATE KEY')) {
+      initializeApp({ 
+        credential: cert({
+          projectId,
+          clientEmail,
+          privateKey,
+        })
       })
-    })
-  } else {
-    // En build time o demo mode sin env vars, inicializamos con un placeholder para evitar que getFirestore() explote
-    // aunque no funcionará para llamadas reales, permitirá que el build de Next.js pase.
-    initializeApp({ projectId: projectId || 'demo-project' })
+    } else {
+      // Si faltan datos, usamos una inicialización mínima (útil en build time)
+      initializeApp({ projectId: projectId || 'demo-project' })
+    }
+  } catch (error) {
+    // Si cert() falla (ej: ASN.1 error), capturamos para que el build no truene
+    console.error('Firebase Admin init failed. Using fallback config.', error)
+    if (!getApps().length) {
+      initializeApp({ projectId: projectId || 'demo-project' })
+    }
   }
 }
 
