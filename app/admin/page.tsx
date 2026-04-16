@@ -67,7 +67,7 @@ export default function AdminPage() {
         setMotivo('')
         setTimeout(() => setSuccess(false), 3000)
       }
-    } catch (_) {
+    } catch {
       alert('Error al registrar retiro')
     } finally {
       setLoading(false)
