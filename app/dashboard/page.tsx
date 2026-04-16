@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Navbar from '@/components/Navbar'
@@ -9,7 +9,7 @@ import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { EstadoColecta } from '@/lib/types'
 
-export default function Dashboard() {
+function DashboardContent() {
   const { perfil, loading: authLoading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -111,5 +111,15 @@ export default function Dashboard() {
 
       <ModalPago isOpen={showModal} onClose={() => setShowModal(false)} />
     </>
+  )
+export default function Dashboard() {
+  return (
+    <Suspense fallback={
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <span className="spinner"></span>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   )
 }
